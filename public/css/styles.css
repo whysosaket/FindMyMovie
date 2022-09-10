@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Oswald:wght@200;300;400;500;600;700&family=Roboto+Condensed:wght@300&display=swap');
+
+body{
+    background-color: #E4E9FD;
+    /* background-image: -webkit-linear-gradient(70deg, #A683E3 50%, #E4E9FD 50%); */
+}
+
+h1{
+    font-family: 'Oswald', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 1rem;
+    color: #6886ff;
+}
+
+p{
+    color: grey;
+    font-family: 'Oswald', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 200;
+}
+
+/* Navbar area */
+
+.me-2{
+    min-width: 30rem;
+}
+
+/* Box Class/ Main Area */
+
+.box{
+    overflow: auto;
+    max-height: 100vh;
+}
+
+.movie-item{
+    background-color: aliceblue;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    min-height: 10rem;
+}
+
+.movie-item h3{
+    color: #2b2b2b;
+}
+
+.movie-item .movie-poster{
+    max-width: 15%;
+    max-height: 8.5rem;
+    overflow: hidden;
+    float:left;
+    margin-right: 1rem;
+    animation: xfade 10s 0s infinite;
+}
+
+
+/* movie class  */
+
+.movie{
+    background-color: aliceblue;
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    min-height: 40rem;
+}
+
+.movie .movie-poster{
+    max-width: 25%;
+    max-height: 18.5rem;
+    overflow: hidden;
+    float:left;
+    margin-right: 1rem;
+    animation: xfade 10s 0s infinite;
+}
+
+.movie h3{
+    font-family: 'Oswald', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.2rem;
+}
+
+.upper-div{
+    min-height: 20rem;
+}
