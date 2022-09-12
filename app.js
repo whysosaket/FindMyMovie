@@ -1,12 +1,17 @@
-
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const https = require('https');
 const axios = require('axios');
-const movie = require(__dirname+"/getMovie.js");
+const { get, request } = require('http');
+const { response } = require('express');
 
+// My custom modules
+const similar = require(__dirname+"/myModules/getSimilar.js");
+const getItems = require(__dirname+"/myModules/getItems.js");
+const getMovieDetails = require(__dirname+"/myModules/getMovieDetails.js");
+const getCast = require(__dirname+'/myModules/getCast.js');
+const getTVDetails = require(__dirname+'/myModules/getTVDetails.js');
 
 const API_KEY = '350dfd4ff79fab6f95562ce70ac31dc9';
 
@@ -17,231 +22,162 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 //Setting up the home route
-app.get('/', (req, res)=>{
-    res.render('index');
+app.get('/', (request, response)=>{
+
+  const top_rated_movies = 'https://api.themoviedb.org/3/movie/top_rated?api_key='+API_KEY;
+  const popular_movies = 'https://api.themoviedb.org/3/movie/popular?api_key='+API_KEY;
+
+  const top_rated_tv = 'https://api.themoviedb.org/3/tv/top_rated?api_key='+API_KEY;
+  const popular_tv = 'https://api.themoviedb.org/3/tv/popular?api_key='+API_KEY;
+
+  const movie_latest = 'https://api.themoviedb.org/3/movie/upcoming?api_key='+API_KEY;
+  const movie_now = 'https://api.themoviedb.org/3/movie/now_playing?api_key='+API_KEY;
+  const tv_latest = 'https://api.themoviedb.org/3/tv/airing_today?api_key='+API_KEY;
+
+  let array = [];
+  let nameArray = ['Top Rated Movies', 'Popular Movies', 'Top Rated TV Shows', 'Popular TV Shows', '','',''];
+  let type = ['movie', 'movie', 'tv', 'tv', 'movie', 'movie', 'tv'];
+
+  let top_rated_movies_array = [];
+  let popular_movies_array = [];
+  let top_rated_tv_array = [];
+  let popular_tv_array = [];
+
+  let movie_latest_array = [];
+  let movie_now_array = [];
+  let tv_latest_array = [];
+  
+  (async()=>{
+
+    top_rated_movies_array = await similar.getSimilar(top_rated_movies).then(data=> {return data});
+    array.push(top_rated_movies_array);
+
+    popular_movies_array = await similar.getSimilar(popular_movies).then(data=> {return data});
+    array.push(popular_movies_array);
+
+    top_rated_tv_array = await similar.getSimilar(top_rated_tv).then(data=> {return data});
+    array.push(top_rated_tv_array);
+
+    popular_tv_array = await similar.getSimilar(popular_tv).then(data=> {return data});
+    array.push(popular_tv_array);
+
+    // for carousel
+    movie_latest_array = await similar.getSimilar(movie_latest).then(data=> {return data});
+    array.push(movie_latest_array);
+
+    movie_now_array = await similar.getSimilar(movie_now).then(data=> {return data});
+    array.push(movie_now_array);
+
+    tv_latest_array = await similar.getSimilar(tv_latest).then(data=> {return data});
+    array.push(tv_latest_array);
+
+    response.render('index',{array: array, nameArray: nameArray, type: type} );
+  })();
 })
 
 // Get extra pages
-app.get('/top-movies', (req, response)=>{
-    
-    const url = 'https://api.themoviedb.org/3/trending/movie/day?api_key='+API_KEY;
-    let array = []; 
-    axios.get(url).then(res => {
-        const movies = res.data;
-         // here resetting the array so no duplicate items
+app.get('/:type/:list', (request, response)=>{
+    let l = request.params.list;
+    let t = request.params.type;
+    let url;
+    let array = [];
+    let title = '';
 
-         for(let i=0; i<20; i++){
-         let id = movies.results[i].id;
-         let title = movies.results[i].title;
-         let name = movies.results[i].name;
-         let overview = movies.results[i].overview;
-         let ratings = movies.results[i].vote_average;
-         let posterURL = 'https://image.tmdb.org/t/p/w500'+ movies.results[i].poster_path;
-         let mediaType = movies.results[i].media_type;
-    
-         // checking for undefined cases
-         if (typeof title == 'undefined') title = name;
-    
-         // rounding off ratings to 2 decimals
-         ratings = parseFloat(ratings).toFixed(1);
-    
-         let trendingObject = {
-             id: id,
-             title: title,
-             overview: overview,
-             ratings: ratings,
-             posterURL: posterURL,
-             mediaType: mediaType
-         }
-    
-         array.push(trendingObject);
-        }
-        }
-      )
-      .catch(err => {
-        console.log('Error: ', err.message);
-      }).then(function () {
-        response.render('top-movies',{trending: array} );
-      });
-    // end
+    switch(l){
+      case 'top-movies': {
+        url = 'https://api.themoviedb.org/3/trending/movie/day?api_key='+API_KEY;
+        title = 'Trending Movies';
+        break;
+      }
+
+      case 'top-tv-show':{
+        url = 'https://api.themoviedb.org/3/trending/tv/day?api_key='+API_KEY;
+        title = 'Trending TV Shows';
+        break;
+      }
+
+      case 'upcoming-movies':{
+        url = 'https://api.themoviedb.org/3/movie/upcoming?api_key='+API_KEY;
+        title = 'Upcoming Movies';
+        break;
+      }
+
+      case 'upcoming-tv-shows':{
+        url = ""
+        break;
+      }
+
+      default:{
+        response.render('listResults', {trending: array, title: title});
+      }
+    }
+    (async()=>{
+      array = await getItems.getItems(url, t).then(data=> {return data});
+      response.render('listResults',{trending: array, title: title} );
+    })();
 })
 
-app.get('/top-tv-show', (req, response)=>{
-    const url = 'https://api.themoviedb.org/3/trending/tv/week?api_key='+API_KEY;
-    let array = []; 
-    axios.get(url).then(res => {
-        const movies = res.data;
-         // here resetting the array so no duplicate items
-         for(let i=0; i<20; i++){
-         let id = movies.results[i].id;
-         let title = movies.results[i].title;
-         let name = movies.results[i].name;
-         let overview = movies.results[i].overview;
-         let ratings = movies.results[i].vote_average;
-         let posterURL = 'https://image.tmdb.org/t/p/w500'+ movies.results[i].poster_path;
-         let mediaType = movies.results[i].media_type;
-    
-         // checking for undefined cases
-         if (typeof title == 'undefined') title = name;
-    
-         // rounding off ratings to 2 decimals
-         ratings = parseFloat(ratings).toFixed(1);
-    
-         let trendingObject = {
-             id: id,
-             title: title,
-             overview: overview,
-             ratings: ratings,
-             posterURL: posterURL,
-             mediaType: mediaType
-         }
-    
-         array.push(trendingObject);
-        }
-        }
-      )
-      .catch(err => {
-        console.log('Error: ', err.message);
-      }).then(function () {
-        response.render('top-tv-show',{trending: array} );
-      });
-    // end
-})
-
-app.get('/about', (req, res)=>{
-    res.render('about');
+app.get('/about', (request, response)=>{
+    response.render('about');
 })
 
 
 // Searching Movies
-
-app.post('/search', (req, response)=>{
-    var query = req.body.search;
+app.post('/search', (request, response)=>{
+    var query = request.body.search;
     const url = 'https://api.themoviedb.org/3/search/multi?api_key='+API_KEY+'&language=en-US&page=1&query='+query;
     let array = [];   
-    axios.get(url).then(res => {
-        const movies = res.data;
-         // here resetting the array so no duplicate items
-         for(let i=0; i<20; i++){
-         let id = movies.results[i].id;
-         let title = movies.results[i].title;
-         let name = movies.results[i].name;
-         let overview = movies.results[i].overview;
-         let ratings = movies.results[i].vote_average;
-         let posterURL = 'https://image.tmdb.org/t/p/w500'+ movies.results[i].poster_path;
-         let mediaType = movies.results[i].media_type;
-    
-         // checking for undefined cases
-         if (typeof title == 'undefined') title = name;
-    
-         // rounding off ratings to 2 decimals
-         ratings = parseFloat(ratings).toFixed(1);
-    
-         let trendingObject = {
-             id: id,
-             title: title,
-             overview: overview,
-             ratings: ratings,
-             posterURL: posterURL,
-             mediaType: mediaType
-         }
-    
-         array.push(trendingObject);
-        }
-        }
-      )
-      .catch(err => {
-        console.log('Error: ', err.message);
-      }).then(function () {
-        response.render('search',{trending: array} );
-      });
-
+    (async()=>{
+      array = await getItems.getItems(url).then(data=> {return data});
+      response.render('search',{trending: array} );
+    })();
 })
 
 
 // Individual Movie Page
-
-app.get('/movie/:id', (request, response)=>{
+app.get('/movie/details/:id', (request, response)=>{
     let id = request.params.id;
     const url = 'https://api.themoviedb.org/3/movie/'+id+'?api_key='+API_KEY+'&language=en-US';
+    const similarMoviesURL = "https://api.themoviedb.org/3/movie/"+id+"/similar?api_key="+API_KEY+"&language=en-US&page=1";
+    const castURL = 'https://api.themoviedb.org/3/movie/'+id+'/credits?api_key='+API_KEY+'&language=en-US';
 
-    console.log(url);
 
-    axios.get(url).then(res => {
-        const movie = res.data;
+    let myMovie;
+    let similarMoviesArray= [];
+    let cast = [];
 
-         let id = movie.id;
-         let title = movie.title;
-         let name = movie.name;
-         let overview = movie.overview;
-         let ratings = movie.vote_average;
-         let posterURL = 'https://image.tmdb.org/t/p/w500'+ movie.poster_path;
-         let originalLanguage = movie.original_language;
-
-         let runtime = movie.runtime;
-         let release_date = movie.release_date;
-         let revenue = movie.revenue;
-         let status = movie.status;
-
-         let country = movie.production_countries[0].name;
-
-         // getting genre
-         let genre = [];
-         let temp = "";
-         for(let i=0;i<5;i++){
-            try{
-            temp = movie.genres[i].name;
-            } catch(e){
-                break;
-            }
-            genre.push(temp);
-         }
-         
-         // getting production compinies
-         let compinies = [];
-         for(let i=0;i<5;i++){
-            try{
-            temp = movie.production_companies[i].name;
-            } catch(e){
-                break;
-            }
-            compinies.push(temp);
-         }
-         
-         //languages spoken
-         let languages = [];
-         for(let i=0;i<5;i++){
-            try{
-            temp = movie.spoken_languages[i].english_name;
-            } catch(e){
-                break;
-            }
-            languages.push(temp);
-         }
-         console.log(languages);
-
-         // checking for undefined cases
-         if (typeof title == 'undefined') title = name;
+    (async()=>{
+      similarMoviesArray = await similar.getSimilar(similarMoviesURL).then(data=> {return data});
+      cast = await getCast.getCast(castURL).then(data=> {return data});
+      myMovie = await getMovieDetails.getMovieDetails(url, similarMoviesArray, cast).then(data=> {return data});
+      response.render('movie',{myMovie: myMovie} );
+    })();
     
-         // rounding off ratings to 2 decimals
-         ratings = parseFloat(ratings).toFixed(1);
-
-    })
-    .catch(err => {
-      console.log('Error: ', err.message);
-    }).then(function () {
-      //response.render('search',{trending: array} );
-    });
-    response.render('movie');
 })
 
-
-app.get('/tv/:id', (request, response)=>{
+app.get('/tv/details/:id', (request, response)=>{
     let id = request.params.id;
     const url = 'https://api.themoviedb.org/3/tv/'+id+'?api_key='+API_KEY+'&language=en-US';
+    const similarTVURL = "https://api.themoviedb.org/3/tv/"+id+"/similar?api_key="+API_KEY+"&language=en-US&page=1";
+    const castURL = 'https://api.themoviedb.org/3/tv/'+id+'/credits?api_key='+API_KEY+'&language=en-US';
 
-    console.log(url);
+    let myTV;
+    let similarTVArray= [];
+    let cast = [];
+    let seasons = [];
+
+    (async()=>{
+      similarTVArray = await similar.getSimilar(similarTVURL).then(data=> {return data});
+      cast = await getCast.getCast(castURL).then(data=> {return data});
+      seasons = await getTVDetails.getSeasons(url).then(data=> {return data});
+      myTV = await getTVDetails.getTVDetails(url,seasons, similarTVArray, cast).then(data=> {return data});
+      response.render('tvshows',{myMovie: myTV} );
+    })();
 })
+
+app.get('*', function(req, res){
+  res.status(404).render('error');
+});
 
 
 //Setting Server Listening Port
