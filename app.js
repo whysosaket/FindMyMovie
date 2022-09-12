@@ -184,6 +184,3 @@ app.get('*', function(req, res){
 app.listen(3000, ()=>{
     console.log("Server Started at PORT: 3000");
 })
-
-
-// The Movie DB API key -> 350dfd4ff79fab6f95562ce70ac31dc9
