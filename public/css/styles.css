@@ -34,6 +34,10 @@ p{
     height: auto;
 }
 
+.carousel-im:hover{
+    padding: 0.5rem;
+}
+
 .carousel{
     margin-bottom: 4rem;
 }
@@ -65,6 +69,7 @@ p{
     margin-right: 1rem;
     animation: xfade 10s 0s infinite;
 }
+
 
 /* search results */
 .no-results{

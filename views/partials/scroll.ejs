@@ -41,7 +41,7 @@
     <div class="movie-suggestion">
     <% for(let i=0; i < array[k].length; i++){ %>
     <div class="movie-suggestion-item" onclick="location.href='/<%=type[k] %>/details/<%=array[k][i].id %>' " style="cursor:pointer;">
-    <img class="movie-poster " src="<%=array[k][i].posterURL %>" onerror="this.onerror=null; this.src='/images/default.png'">
+    <img class="movie-poster" src="<%=array[k][i].posterURL %>" onerror="this.onerror=null; this.src='/images/default.png'">
     <h3><%=array[k][i].title%> </h3>
     </div>
      <% } %>
