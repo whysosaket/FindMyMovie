@@ -13,7 +13,7 @@ const getMovieDetails = require(__dirname+"/myModules/getMovieDetails.js");
 const getCast = require(__dirname+'/myModules/getCast.js');
 const getTVDetails = require(__dirname+'/myModules/getTVDetails.js');
 
-const API_KEY = '350dfd4ff79fab6f95562ce70ac31dc9';
+const API_KEY = '<<<< Movies DB API Key >>>>';
 
 const app = express();
 app.set('view engine', 'ejs');
