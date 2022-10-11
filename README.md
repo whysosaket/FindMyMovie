@@ -2,6 +2,8 @@
 -> A basic Web Application made using EJS, Node and Express
 <br>
 -> This use MoviesDB API to retrieve data about movies and Webseries, and display them.
+<br>
+-> Test the website yourself: https://find-my-movies.herokuapp.com/
 
 # Screenshots
 
