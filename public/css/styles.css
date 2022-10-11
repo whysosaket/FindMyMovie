@@ -46,8 +46,7 @@ p{
 /* Box Class/ Main Area */
 
 .box{
-    overflow: auto;
-    max-height: 100vh;
+    
 }
 
 .movie-item{
@@ -233,5 +232,21 @@ p{
 @media (max-aspect-ratio: 3/4) {
     .me-2{
         min-width: 2rem;
+    }
+
+    .movie{
+       max-height: 60rem;
+    }
+
+    .lower-div-left{
+        display: block;
+        float: none;
+        width: auto;
+    }
+
+    .lower-div-right{
+        display: block;
+        float: none;
+        width: auto;
     }
 }
