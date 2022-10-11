@@ -8,6 +8,9 @@
   },
   "author": "Saket Aryan",
   "license": "ISC",
+  "engines": {
+    "node": "16.17.1"
+  },
   "dependencies": {
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
