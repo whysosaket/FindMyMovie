@@ -180,7 +180,9 @@ app.get('*', function(req, res){
 });
 
 
-//Setting Server Listening Port
-app.listen(process.env.port || 3000, ()=>{
-    console.log("Server Started at PORT: 3000");
-})
+let port = process.env.PORT;
+if(port == null || ""){
+    port = 3000;
+}
+
+app.listen(port, ()=> console.log("Server started!!"));
