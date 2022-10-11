@@ -181,6 +181,6 @@ app.get('*', function(req, res){
 
 
 //Setting Server Listening Port
-app.listen(3000, ()=>{
+app.listen(process.env.port || 3000, ()=>{
     console.log("Server Started at PORT: 3000");
 })
