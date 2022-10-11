@@ -229,3 +229,9 @@ p{
 .fa-facebook{
     color: rgb(66,103,178);
 }
+
+@media (max-aspect-ratio: 3/4) {
+    .me-2{
+        min-width: 2rem;
+    }
+}
