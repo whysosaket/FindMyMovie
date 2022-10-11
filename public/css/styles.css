@@ -229,9 +229,10 @@ p{
     color: rgb(66,103,178);
 }
 
-@media (max-aspect-ratio: 3/4) {
+@media (max-aspect-ratio: 9/10) {
     .me-2{
         min-width: 2rem;
+        max-width: 15rem;
     }
 
     .movie{
@@ -248,5 +249,8 @@ p{
         display: block;
         float: none;
         width: auto;
+    }
+    #v-pills-tabContent {
+        min-width: 5rem;
     }
 }
