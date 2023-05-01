@@ -1,10 +1,5 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const ejs = require('ejs');
-const https = require('https');
-const axios = require('axios');
-const { get, request } = require('http');
-const { response } = require('express');
 
 // My custom modules
 const similar = require(__dirname+"/myModules/getSimilar.js");
@@ -49,6 +44,7 @@ app.get('/', (request, response)=>{
   
   (async()=>{
 
+    try{
     top_rated_movies_array = await similar.getSimilar(top_rated_movies).then(data=> {return data});
     array.push(top_rated_movies_array);
 
@@ -72,6 +68,10 @@ app.get('/', (request, response)=>{
     array.push(tv_latest_array);
 
     response.render('index',{array: array, nameArray: nameArray, type: type} );
+    } catch(err){
+      console.log(err)
+      response.render('404');
+    }
   })();
 })
 
@@ -112,8 +112,13 @@ app.get('/:type/:list', (request, response)=>{
       }
     }
     (async()=>{
+      try{
       array = await getItems.getItems(url, t).then(data=> {return data});
       response.render('listResults',{trending: array, title: title} );
+      }catch(err){
+        console.log(err);
+        response.render('404');
+      }
     })();
 })
 
@@ -128,8 +133,13 @@ app.post('/search', (request, response)=>{
     const url = 'https://api.themoviedb.org/3/search/multi?api_key='+API_KEY+'&language=en-US&page=1&query='+query;
     let array = [];   
     (async()=>{
+      try{
       array = await getItems.getItems(url).then(data=> {return data});
       response.render('search',{trending: array} );
+      }catch(err){
+        console.log(err);
+        response.render('404');
+      }
     })();
 })
 
@@ -147,10 +157,15 @@ app.get('/movie/details/:id', (request, response)=>{
     let cast = [];
 
     (async()=>{
+      try{
       similarMoviesArray = await similar.getSimilar(similarMoviesURL).then(data=> {return data});
       cast = await getCast.getCast(castURL).then(data=> {return data});
       myMovie = await getMovieDetails.getMovieDetails(url, similarMoviesArray, cast).then(data=> {return data});
       response.render('movie',{myMovie: myMovie} );
+      } catch(err){
+        console.log(err);
+        response.render('404');
+      }
     })();
     
 })
@@ -167,16 +182,21 @@ app.get('/tv/details/:id', (request, response)=>{
     let seasons = [];
 
     (async()=>{
+      try{
       similarTVArray = await similar.getSimilar(similarTVURL).then(data=> {return data});
       cast = await getCast.getCast(castURL).then(data=> {return data});
       seasons = await getTVDetails.getSeasons(url).then(data=> {return data});
       myTV = await getTVDetails.getTVDetails(url,seasons, similarTVArray, cast).then(data=> {return data});
       response.render('tvshows',{myMovie: myTV} );
+      }catch(err){
+        console.log(err);
+        response.render('404');
+      }
     })();
 })
 
 app.get('*', function(req, res){
-  res.status(404).render('error');
+  res.status(404).render('404');
 });
 
 
